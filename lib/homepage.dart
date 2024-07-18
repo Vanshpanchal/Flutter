@@ -1,3 +1,4 @@
+import 'package:apk/explore.dart';
 import 'package:apk/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class _homepageState extends State<homepage> {
 class navigatorcontroller extends GetxController {
   final Rx<int> selectedindex = 0.obs;
   final screen = [
-    Container(color: Colors.green),
+    const explore(),
     Container(color: Colors.blue),
     const profile()
   ];
