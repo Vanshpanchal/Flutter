@@ -18,10 +18,13 @@ class _addmodalState extends State<addmodal> {
     try {
       var user = FirebaseAuth.instance.currentUser;
       String doc_id =
-          FirebaseFirestore.instance.collection('Question-Answer').doc().id;
+          FirebaseFirestore.instance
+              .collection('Question-Answer')
+              .doc()
+              .id;
       Map<String, dynamic> Data = {
-        'Question': _questionController.text,
-        'Answer': _answerController.text,
+        'Question': _questionController.text.trim().capitalizeFirst,
+        'Answer': _answerController.text.trim().capitalizeFirst ,
         'Uid': user?.uid,
         'Report': false,
         'docId': doc_id
@@ -30,22 +33,22 @@ class _addmodalState extends State<addmodal> {
           .collection("Question-Answer")
           .doc(doc_id)
           .set(Data)
-          .then((_) => {
-                debugPrint("AddUser: User Added"),
-                Get.showSnackbar(const GetSnackBar(
-                  title: "Question-Answer Added",
-                  message: "Success",
-                  icon: Icon(
-                    Icons.cloud_done_sharp,
-                    color: Colors.white,
-                  ),
-                  duration: Duration(seconds: 3),
-                ))
-              })
+          .then((_) =>
+      {
+        debugPrint("AddUser: User Added"),
+        Get.showSnackbar(const GetSnackBar(
+          title: "Question-Answer Added",
+          message: "Success",
+          icon: Icon(
+            Icons.cloud_done_sharp,
+            color: Colors.white,
+          ),
+          duration: Duration(seconds: 3),
+        ))
+      })
           .catchError((e) {
         debugPrint("AddUser  {$e}");
       });
-
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.code)));
@@ -57,14 +60,13 @@ class _addmodalState extends State<addmodal> {
   @override
   Widget build(BuildContext context) {
     return FractionallySizedBox(
-      heightFactor: 0.8,
-    child:
-      Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Container(
+        heightFactor: 0.8,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+            Container(
             height: 4,
             width: 50,
             margin: const EdgeInsets.symmetric(vertical: 10),
@@ -74,41 +76,65 @@ class _addmodalState extends State<addmodal> {
             ),
           ),
           const Text(
-            "Enter Data",
+            "Interview-Question",
             style: TextStyle(
-                color: Colors.black, fontSize: 22, fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 10),
-          TextField(
-            controller: _questionController,
-            maxLength: null,
-            maxLines: 3,
-            minLines: 1,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Question',
-                prefixIcon: Icon(Icons.question_mark_outlined)),
+                color: Colors.black,
+                fontSize: 22,
+                fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 20),
-          TextField(
-            controller: _answerController,
-            maxLines: 15,
-            minLines: 1,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Answer',
-                prefixIcon: Icon(Icons.question_answer_outlined)),
+              TextField(
+                controller: _questionController,
+                maxLength: null,
+                maxLines: 3,
+                enabled: true,
+                minLines: 1,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.question_mark_outlined),
+                  hintText: 'Question',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+
+                  ),
+                  contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                ),
+              ),
+
+            SizedBox(height: 20),
+            TextField(
+              controller: _answerController,
+              maxLines: 12,
+              minLines: 1,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  contentPadding:
+                  const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  hintText: 'Answer',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.transparent,
+                  prefixIcon: Icon(Icons.question_answer_outlined)),
+
+            ),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: Icon(Icons.file_upload_outlined),
+              onPressed: () {
+                addQA();
+                Navigator.pop(context);
+              },
+              label: Text('Upload'),
+            ),
+            ],
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              addQA();
-              Navigator.pop(context);
-            },
-            child: Text('Add'),
-          ),
-        ],
-      ),
-      ) );
+        ));
   }
+
+
 }
