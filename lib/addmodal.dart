@@ -56,7 +56,10 @@ class _addmodalState extends State<addmodal> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return FractionallySizedBox(
+      heightFactor: 0.8,
+    child:
+      Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -106,6 +109,6 @@ class _addmodalState extends State<addmodal> {
           ),
         ],
       ),
-    );
+      ) );
   }
 }

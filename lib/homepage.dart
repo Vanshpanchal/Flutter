@@ -23,7 +23,7 @@ class _homepageState extends State<homepage> {
     final controller = Get.put(navigatorcontroller());
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home Page"),
+        title: Text("Q&A Vault"),
       ),
       body: Obx(()=> controller.screen[controller.selectedindex.value]),
       bottomNavigationBar: Obx(() => NavigationBar(
