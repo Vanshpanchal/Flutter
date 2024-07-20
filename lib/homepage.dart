@@ -1,5 +1,6 @@
 import 'package:apk/explore.dart';
 import 'package:apk/profile.dart';
+import 'package:apk/service/saved.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,7 +50,7 @@ class navigatorcontroller extends GetxController {
   final Rx<int> selectedindex = 0.obs;
   final screen = [
     const explore(),
-    Container(color: Colors.blue),
+    const saved(),
     const profile()
   ];
 }

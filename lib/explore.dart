@@ -16,7 +16,7 @@ class _exploreState extends State<explore> {
       .orderBy('Timestamp', descending: true)
       .snapshots();
 
-  final List<String> _saves = [];
+  List<dynamic> _saves = [];
 
   save(itemId) async {
     var usercredential = FirebaseAuth.instance.currentUser;
@@ -28,14 +28,23 @@ class _exploreState extends State<explore> {
     });
   }
 
+  report(itemId) async {
+    await FirebaseFirestore.instance
+        .collection("Admin")
+        .doc('EQepsPITGKxb5BcdJCWO')
+        .update({
+      'Reported': FieldValue.arrayUnion([itemId])
+    });
+  }
   getsave() async {
     var usercredential = FirebaseAuth.instance.currentUser;
     final doc = await FirebaseFirestore.instance
         .collection("User")
         .doc(usercredential?.uid)
         .get();
-    var data = doc.data();
-    print("S__"+data?['Saved'][0] as String);
+    var data = doc['Saved'];
+    _saves = data;
+    print(_saves);
   }
 
   void openbottmsheet() {
@@ -43,6 +52,12 @@ class _exploreState extends State<explore> {
         isScrollControlled: true,
         context: context,
         builder: (ctx) => addmodal());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getsave();
   }
 
   @override
@@ -60,11 +75,15 @@ class _exploreState extends State<explore> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+          getsave();
           var docs = snapshot.data!.docs;
+
           return ListView.builder(
               itemCount: docs.length,
               itemBuilder: (context, index) {
                 final item = docs[index];
+                // bool isSaved = ;
+                // print(isSaved);
                 return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
@@ -81,7 +100,7 @@ class _exploreState extends State<explore> {
                         icon: Icon(Icons.bookmark_border),
                         onPressed: () {
                           save(item.id);
-                          getsave();
+                          // print(getsave());
                         },
                       ),
                     ));
@@ -132,7 +151,8 @@ class _exploreState extends State<explore> {
                       );
                     }).toList() ??
                     [],
-              )
+              ),
+              IconButton.filledTonal(onPressed: () => {report(itemId)}, icon: Icon(Icons.report,color: Colors.red))
             ],
           ),
         );
