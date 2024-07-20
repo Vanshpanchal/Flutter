@@ -1,6 +1,6 @@
 import 'package:apk/addmodal.dart';
-import 'package:apk/previewmodal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class explore extends StatefulWidget {
@@ -11,8 +11,32 @@ class explore extends StatefulWidget {
 }
 
 class _exploreState extends State<explore> {
-  final exploreStream =
-      FirebaseFirestore.instance.collection('Question-Answer').snapshots();
+  final exploreStream = FirebaseFirestore.instance
+      .collection('Question-Answer')
+      .orderBy('Timestamp', descending: true)
+      .snapshots();
+
+  final List<String> _saves = [];
+
+  save(itemId) async {
+    var usercredential = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance
+        .collection("User")
+        .doc(usercredential?.uid)
+        .update({
+      'Saved': FieldValue.arrayUnion([itemId])
+    });
+  }
+
+  getsave() async {
+    var usercredential = FirebaseAuth.instance.currentUser;
+    final doc = await FirebaseFirestore.instance
+        .collection("User")
+        .doc(usercredential?.uid)
+        .get();
+    var data = doc.data();
+    print("S__"+data?['Saved'][0] as String);
+  }
 
   void openbottmsheet() {
     showModalBottomSheet(
@@ -34,7 +58,7 @@ class _exploreState extends State<explore> {
             return Text('Error');
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text('Loading...');
+            return const Center(child: CircularProgressIndicator());
           }
           var docs = snapshot.data!.docs;
           return ListView.builder(
@@ -56,7 +80,8 @@ class _exploreState extends State<explore> {
                             ButtonStyle(splashFactory: NoSplash.splashFactory),
                         icon: Icon(Icons.bookmark_border),
                         onPressed: () {
-
+                          save(item.id);
+                          getsave();
                         },
                       ),
                     ));
@@ -67,7 +92,10 @@ class _exploreState extends State<explore> {
   }
 
   void _showItemDetails(BuildContext context, String itemId) async {
-    final itemDoc = await FirebaseFirestore.instance.collection('Question-Answer').doc(itemId).get();
+    final itemDoc = await FirebaseFirestore.instance
+        .collection('Question-Answer')
+        .doc(itemId)
+        .get();
     final itemData = itemDoc.data();
 
     showModalBottomSheet(
@@ -82,7 +110,7 @@ class _exploreState extends State<explore> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                itemData?['Question'] +'?',
+                itemData?['Question'] + '?',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -95,6 +123,16 @@ class _exploreState extends State<explore> {
                   fontSize: 16,
                 ),
               ),
+              SizedBox(height: 16.0),
+              Wrap(
+                spacing: 8.0,
+                children: (itemData?['Tags'] as List<dynamic>?)!.map((tag) {
+                      return Chip(
+                        label: Text(tag),
+                      );
+                    }).toList() ??
+                    [],
+              )
             ],
           ),
         );

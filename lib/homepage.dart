@@ -34,8 +34,8 @@ class _homepageState extends State<homepage> {
               NavigationDestination(
                   icon: Icon(Icons.looks_rounded), label: "Explore"),
               NavigationDestination(
-                  icon: Icon(Icons.favorite_border_outlined),
-                  label: "Favourite"),
+                  icon: Icon(Icons.book_outlined),
+                  label: "Saved"),
               NavigationDestination(
                   icon: Icon(Icons.person_outline), label: "Profile"),
             ],

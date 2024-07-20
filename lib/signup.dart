@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:apk/login.dart';
@@ -31,7 +32,8 @@ class _signupState extends State<signup> {
         'Username': username_controller.text,
         'Email': userCredential.user?.email,
         'Uid': userCredential.user?.uid,
-        'Amdin': false
+        'Amdin': false,
+        'Saved': []
       };
       await FirebaseFirestore.instance
           .collection("User")
