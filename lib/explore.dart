@@ -1,7 +1,9 @@
 import 'package:apk/addmodal.dart';
+import 'package:apk/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class explore extends StatefulWidget {
   const explore({super.key});
@@ -11,6 +13,7 @@ class explore extends StatefulWidget {
 }
 
 class _exploreState extends State<explore> {
+  final navigatorController = Get.find<navigatorcontroller>();
   final exploreStream = FirebaseFirestore.instance
       .collection('Question-Answer')
       .orderBy('Timestamp', descending: true)
@@ -26,6 +29,24 @@ class _exploreState extends State<explore> {
         .update({
       'Saved': FieldValue.arrayUnion([itemId])
     });
+
+    Get.showSnackbar(GetSnackBar(
+      title: "Success",
+      message: "Question Saved ",
+      icon: Icon(
+        Icons.bookmark,
+        color: Colors.green,
+      ),
+      mainButton: TextButton(
+          onPressed: () {
+            navigatorController.selectedindex.value = 1;
+          },
+          child: Text(
+            'Show',
+            style: TextStyle(color: Colors.white),
+          )),
+      duration: Duration(seconds: 2),
+    ));
   }
 
   report(itemId) async {
@@ -36,6 +57,7 @@ class _exploreState extends State<explore> {
       'Reported': FieldValue.arrayUnion([itemId])
     });
   }
+
   getsave() async {
     var usercredential = FirebaseAuth.instance.currentUser;
     final doc = await FirebaseFirestore.instance
@@ -152,7 +174,9 @@ class _exploreState extends State<explore> {
                     }).toList() ??
                     [],
               ),
-              IconButton.filledTonal(onPressed: () => {report(itemId)}, icon: Icon(Icons.report,color: Colors.red))
+              IconButton.filledTonal(
+                  onPressed: () => {report(itemId)},
+                  icon: Icon(Icons.report, color: Colors.red))
             ],
           ),
         );

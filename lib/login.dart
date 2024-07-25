@@ -30,7 +30,7 @@ class _loginState extends State<login> {
   forget() async {
     try {
       await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: "vansh.tapu@gmail.com");
+          .sendPasswordResetEmail(email: email_controller.text);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.code)));

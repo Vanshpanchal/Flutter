@@ -21,6 +21,15 @@ class _savedState extends State<saved> {
           .instance.currentUser?.uid) // Replace with the actual document ID
       .snapshots();
 
+  removeSaved(itemId) async {
+    var usercredential = FirebaseAuth.instance.currentUser;
+    await FirebaseFirestore.instance
+        .collection("User")
+        .doc(usercredential?.uid)
+        .update({
+      'Saved': FieldValue.arrayRemove([itemId])
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +74,15 @@ class _savedState extends State<saved> {
                             splashColor: Colors.transparent,
                             onTap: () => {_showItemDetails(context, docs[index].id)},
                             style: ListTileStyle.drawer,
+                            trailing: IconButton(
+                              style:
+                              ButtonStyle(splashFactory: NoSplash.splashFactory),
+                              icon: Icon(Icons.bookmark),
+                              onPressed: () {
+                                removeSaved(item.id);
+                                // print(getsave());
+                              },
+                            ),
                             leading: Icon(Icons.menu_book_sharp),
                             title: Text(docs[index]['Question'] + '?'),
                           ),
