@@ -176,8 +176,14 @@ class _addmodalState extends State<addmodal> {
                   children: _tags.map((tag) {
                     return Chip(
                       label: Text(tag),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0)),
                       onDeleted: () => _removeTag(tag),
-                      deleteIcon: Icon(Icons.cancel_outlined, size: Checkbox.width,),
+                      deleteIcon: const Icon(
+                        Icons.cancel_outlined,
+                        size: Checkbox.width,
+                        color: Colors.black,
+                      ),
                     );
                   }).toList(),
                 ),
@@ -204,6 +210,10 @@ class _addmodalState extends State<addmodal> {
                     }
                   },
                   label: Text('Upload'),
+                  style: ElevatedButton.styleFrom(elevation: 2.0, // Border color and width
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0), // Border radius
+                    )),
                 ),
               ],
             ),

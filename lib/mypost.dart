@@ -1,103 +1,39 @@
-import 'package:apk/addmodal.dart';
-import 'package:apk/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class explore extends StatefulWidget {
-  const explore({super.key});
+import 'homepage.dart';
+
+class mypost extends StatefulWidget {
+  const mypost({super.key});
 
   @override
-  State<explore> createState() => _exploreState();
+  State<mypost> createState() => _mypostState();
 }
 
-class _exploreState extends State<explore> {
+class _mypostState extends State<mypost> {
+  var usercredential = FirebaseAuth.instance.currentUser?.uid;
+
   final navigatorController = Get.find<navigatorcontroller>();
   final exploreStream = FirebaseFirestore.instance
       .collection('Question-Answer')
-      .orderBy('Timestamp', descending: true)
+      .where('Uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
       .snapshots();
-
-  List<dynamic> _saves = [];
-
-  save(itemId) async {
-    var usercredential = FirebaseAuth.instance.currentUser;
-    await FirebaseFirestore.instance
-        .collection("User")
-        .doc(usercredential?.uid)
-        .update({
-      'Saved': FieldValue.arrayUnion([itemId])
-    });
-
-    Get.showSnackbar(GetSnackBar(
-      title: "Success",
-      message: "Question Saved ",
-      icon: Icon(
-        Icons.bookmark,
-        color: Colors.green,
-      ),
-      mainButton: TextButton(
-          onPressed: () {
-            navigatorController.selectedindex.value = 1;
-          },
-          child: Text(
-            'Show',
-            style: TextStyle(color: Colors.white),
-          )),
-      duration: Duration(seconds: 2),
-    ));
-  }
-
-  report(itemId) async {
-    await FirebaseFirestore.instance
-        .collection("Admin")
-        .doc('EQepsPITGKxb5BcdJCWO')
-        .update({
-      'Reported': FieldValue.arrayUnion([itemId])
-    });
-  }
-
-  getsave() async {
-    var usercredential = FirebaseAuth.instance.currentUser;
-    final doc = await FirebaseFirestore.instance
-        .collection("User")
-        .doc(usercredential?.uid)
-        .get();
-    var data = doc['Saved'];
-    _saves = data;
-    print(_saves);
-  }
-
-  void openbottmsheet() {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (ctx) => addmodal());
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getsave();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          onPressed: openbottmsheet,
-          child: const Icon(Icons.add, color: Colors.black)),
       body: StreamBuilder(
         stream: exploreStream,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
+            print(snapshot.error);
             return Text('Error');
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          getsave();
           var docs = snapshot.data!.docs;
 
           return ListView.builder(
@@ -114,17 +50,8 @@ class _exploreState extends State<explore> {
                       splashColor: Colors.transparent,
                       onTap: () => {_showItemDetails(context, item.id)},
                       style: ListTileStyle.drawer,
-                      leading: Icon(Icons.menu_book_sharp,color: Colors.black,),
+                      leading: Icon(Icons.menu_book_sharp),
                       title: Text(docs[index]['Question'] + '?'),
-                      trailing: IconButton(
-                        style:
-                            ButtonStyle(splashFactory: NoSplash.splashFactory),
-                        icon: Icon(Icons.bookmark_border,color: Colors.black,),
-                        onPressed: () {
-                          save(item.id);
-                          // print(getsave());
-                        },
-                      ),
                     ));
               });
         },
@@ -170,14 +97,11 @@ class _exploreState extends State<explore> {
                 children: (itemData?['Tags'] as List<dynamic>?)!.map((tag) {
                       return Chip(
                         label: Text(tag),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
                       );
                     }).toList() ??
                     [],
               ),
-              IconButton.filledTonal(
-                  onPressed: () => {report(itemId)},
-                  icon: Icon(Icons.report, color: Colors.red))
             ],
           ),
         );
