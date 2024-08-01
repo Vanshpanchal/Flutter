@@ -81,9 +81,25 @@ class _exploreState extends State<explore> {
     super.initState();
     getsave();
   }
-
+  Future<String?> _fetchUserName(String uid) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('User')
+          .doc(uid)
+          .get();
+      if (userDoc.exists) {
+        return userDoc['Username'];
+      } else {
+        return 'Unknown User';
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return 'Error';
+    }
+  }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           onPressed: openbottmsheet,
@@ -116,6 +132,19 @@ class _exploreState extends State<explore> {
                       style: ListTileStyle.drawer,
                       leading: Icon(Icons.menu_book_sharp,color: Colors.black,),
                       title: Text(docs[index]['Question'] + '?'),
+                      subtitle: FutureBuilder<String?>(
+                        future: _fetchUserName(docs[index]['Uid']),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Text('Loading...');
+                          } else if (snapshot.hasError) {
+                            return Text('Error fetching user name');
+                          } else {
+                            String userName = snapshot.data ?? 'Unknown User';
+                            return Text(userName);
+                          }
+                        },
+                      ),
                       trailing: IconButton(
                         style:
                             ButtonStyle(splashFactory: NoSplash.splashFactory),
