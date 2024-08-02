@@ -2,6 +2,8 @@ import 'package:apk/addmodal.dart';
 import 'package:apk/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,7 +16,10 @@ class explore extends StatefulWidget {
 
 class _exploreState extends State<explore> {
   final navigatorController = Get.find<navigatorcontroller>();
-  final exploreStream = FirebaseFirestore.instance
+  final TextEditingController searchtxt = TextEditingController();
+  final searchController = Get.put(SearchController());
+
+  var exploreStream = FirebaseFirestore.instance
       .collection('Question-Answer')
       .orderBy('Timestamp', descending: true)
       .snapshots();
@@ -81,12 +86,16 @@ class _exploreState extends State<explore> {
     super.initState();
     getsave();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   Future<String?> _fetchUserName(String uid) async {
     try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('User')
-          .doc(uid)
-          .get();
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('User').doc(uid).get();
       if (userDoc.exists) {
         return userDoc['Username'];
       } else {
@@ -97,10 +106,47 @@ class _exploreState extends State<explore> {
       return 'Error';
     }
   }
+
+  onSearch(String msg) {
+    if (msg.isNotEmpty) {
+      setState(() {
+        exploreStream = FirebaseFirestore.instance
+            .collection('Question-Answer')
+            .where("Tags", arrayContains: msg)
+            .snapshots();
+      });
+    } else {
+      setState(() {
+        exploreStream = FirebaseFirestore.instance
+            .collection('Question-Answer')
+            .orderBy('Timestamp', descending: true)
+            .snapshots();
+      });
+    }
+    // print(exploreStream.toString());
+  }
+
+  Future<String?> _fetchUserProfileImage(String uid) async {
+    try {
+      if (uid.isNotEmpty) {
+        return await FirebaseStorage.instance.ref("/Profile/${uid}.png").getDownloadURL();
+      } else {
+        return 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      return 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
+    }
+  }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: CupertinoSearchTextField(
+          onChanged: (val) => onSearch(val),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
           onPressed: openbottmsheet,
           child: const Icon(Icons.add, color: Colors.black)),
@@ -115,6 +161,11 @@ class _exploreState extends State<explore> {
           }
           getsave();
           var docs = snapshot.data!.docs;
+          if (docs.isEmpty) {
+            return Center(
+              child: Text('No data found'),
+            );
+          }
 
           return ListView.builder(
               itemCount: docs.length,
@@ -122,39 +173,64 @@ class _exploreState extends State<explore> {
                 final item = docs[index];
                 // bool isSaved = ;
                 // print(isSaved);
-                return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: ListTile(
-                      splashColor: Colors.transparent,
-                      onTap: () => {_showItemDetails(context, item.id)},
-                      style: ListTileStyle.drawer,
-                      leading: Icon(Icons.menu_book_sharp,color: Colors.black,),
-                      title: Text(docs[index]['Question'] + '?'),
-                      subtitle: FutureBuilder<String?>(
-                        future: _fetchUserName(docs[index]['Uid']),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Text('Loading...');
-                          } else if (snapshot.hasError) {
-                            return Text('Error fetching user name');
-                          } else {
-                            String userName = snapshot.data ?? 'Unknown User';
-                            return Text(userName);
-                          }
-                        },
-                      ),
-                      trailing: IconButton(
-                        style:
-                            ButtonStyle(splashFactory: NoSplash.splashFactory),
-                        icon: Icon(Icons.bookmark_border,color: Colors.black,),
-                        onPressed: () {
-                          save(item.id);
-                          // print(getsave());
-                        },
-                      ),
-                    ));
+                return docs.isEmpty
+                    ? const Center(
+                        child: Text("No Data Found"),
+                      )
+                    : Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: ListTile(
+                          splashColor: Colors.transparent,
+                          onTap: () => {_showItemDetails(context, item.id)},
+                          style: ListTileStyle.drawer,
+                          leading: FutureBuilder<String?>(
+                            future: _fetchUserProfileImage(docs[index]['Uid']),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircleAvatar(
+                                  backgroundColor: Colors.grey,
+                                );
+                              } else if (snapshot.hasError) {
+                                print(snapshot.error);
+                                return const CircleAvatar(
+                                  foregroundImage: NetworkImage(
+                                    'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg',
+                                  ),
+                                );
+                              } else {
+                                return CircleAvatar(
+                                  foregroundImage: NetworkImage(snapshot.data!),
+                                );
+                              }
+                            },
+                          ),
+                          title: Text(docs[index]['Question'] + '?'),
+                          subtitle: FutureBuilder<String?>(
+                            future: _fetchUserName(docs[index]['Uid']),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Text('Loading...');
+                              } else if (snapshot.hasError) {
+                                return Text('Error fetching user name');
+                              } else {
+                                String userName = "~ ${snapshot.data}";
+                                return Text(userName);
+                              }
+                            },
+                          ),
+                          // trailing: IconButton(
+                          //   style:
+                          //       ButtonStyle(splashFactory: NoSplash.splashFactory),
+                          //   icon: Icon(Icons.bookmark_border,color: Colors.black,),
+                          //   onPressed: () {
+                          //     save(item.id);
+                          //     // print(getsave());
+                          //   },
+                          // ),
+                        ));
               });
         },
       ),
@@ -198,19 +274,34 @@ class _exploreState extends State<explore> {
                 spacing: 8.0,
                 children: (itemData?['Tags'] as List<dynamic>?)!.map((tag) {
                       return Chip(
-                        label: Text(tag),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))
-                      );
+                          label: Text(tag),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0)));
                     }).toList() ??
                     [],
               ),
-              IconButton.filledTonal(
-                  onPressed: () => {report(itemId)},
-                  icon: Icon(Icons.report, color: Colors.red))
+              Row(
+                children: [
+                  IconButton.filledTonal(
+                      onPressed: () => {report(itemId)},
+                      icon: Icon(Icons.report, color: Colors.red)),
+                  IconButton.filledTonal(
+                      onPressed: () => {save(itemId)},
+                      icon: Icon(Icons.save_rounded, color: Colors.green))
+                ],
+              )
             ],
           ),
         );
       },
     );
+  }
+}
+
+class SearchController extends GetxController {
+  var searchText = ''.obs;
+
+  void updateSearchText(String text) {
+    searchText.value = text;
   }
 }
