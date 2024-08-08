@@ -5,7 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 class explore extends StatefulWidget {
   const explore({super.key});
@@ -200,7 +202,7 @@ class _exploreState extends State<explore> {
         // ),
 
       floatingActionButton: FloatingActionButton(
-          onPressed: openbottmsheet,
+          onPressed: (){openbottmsheet();},
           child: const Icon(Icons.add, color: Colors.black)),
       body:
 
@@ -318,6 +320,7 @@ class _exploreState extends State<explore> {
             },
           ),
           )],
+        // ElevatedButton(onPressed: ()}, child: Text("butoon"))],
       ),
     );
   }
@@ -376,7 +379,15 @@ class _exploreState extends State<explore> {
                         icon: Icon(Icons.report, color: Colors.red)),
                     IconButton.filledTonal(
                         onPressed: () => {save(itemId)},
-                        icon: Icon(Icons.save_rounded, color: Colors.green))
+                        icon: Icon(Icons.save_rounded, color: Colors.green)),
+                    IconButton.filledTonal(
+                        onPressed: () => { Clipboard.setData(ClipboardData(text:itemData?['Question'] + '? \n' + itemData?['Answer']))},
+                        icon: Icon(Icons.file_copy_rounded, color: Colors.black)),
+                    IconButton.filledTonal(
+                        onPressed: ()  async { await Share.share('${'Question:'+itemData?['Question']}? \nAnswer:'+itemData?['Answer']);
+                          },
+                        icon: Icon(CupertinoIcons.share, color: Colors.black )),
+
                   ],
                 )
               ],
