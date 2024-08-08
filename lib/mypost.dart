@@ -86,6 +86,7 @@ class _mypostState extends State<mypost> {
               ),
               SizedBox(height: 16.0),
               Text(
+                textAlign: TextAlign.justify,
                 itemData?['Answer'] ?? 'No description available',
                 style: const TextStyle(
                   fontSize: 16,

@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
             useMaterial3: true,
+
             bottomNavigationBarTheme: const BottomNavigationBarThemeData(
               elevation: 8.0,
             ),

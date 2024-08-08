@@ -13,7 +13,16 @@ class addmodal extends StatefulWidget {
 class _addmodalState extends State<addmodal> {
   final TextEditingController _questionController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
+  final List<String> subjects = [
+    "Algorithms",
+    "Data Structures",
+    "System Design",
+    "Database Management",
+    "Operating Systems",
+    "Competitive Programming"
+  ];
 
+  String? selectedSubject;
   addQA() async {
     try {
       var user = FirebaseAuth.instance.currentUser;
@@ -26,6 +35,7 @@ class _addmodalState extends State<addmodal> {
         'Report': false,
         'Tags': _tags,
         'docId': doc_id,
+        'Subject':selectedSubject,
         'Timestamp': FieldValue.serverTimestamp()
       };
       await FirebaseFirestore.instance
@@ -59,8 +69,8 @@ class _addmodalState extends State<addmodal> {
   final List<String> _tags = [];
 
   void _addTag() {
-    final tag = _tagController.text.trim();
-    if (tag.isNotEmpty && !_tags.contains(tag)) {
+    final tag = _tagController.text.toUpperCase().trim();
+    if (tag!.isNotEmpty && !_tags.contains(tag)) {
       setState(() {
         _tags.add(tag);
       });
@@ -77,147 +87,187 @@ class _addmodalState extends State<addmodal> {
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-        heightFactor: 0.85,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 4,
-                  width: 50,
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const Text(
-                  "Interview-Question",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: _questionController,
-                  maxLength: null,
-                  maxLines: 3,
-                  enabled: true,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.question_mark_outlined),
-                    hintText: 'Question',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
+    return
+      Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: FractionallySizedBox(
+          heightFactor: 0.9,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 4,
+                    width: 50,
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: _answerController,
-                  maxLines: 12,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  const Text(
+                    "Interview-Question",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
-                    hintText: 'Answer',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    prefixIcon: Icon(Icons.question_answer_outlined),
                   ),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: _tagController,
-                  maxLines: 12,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.add_box_rounded),
-                      onPressed: () {
-                        _addTag();
-                        print(_tags);
-                      },
-                    ),
-                    hintText: 'Tag',
-                    hintStyle: TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    prefixIcon: Icon(Icons.tag_rounded),
-                  ),
-                ),
-                Wrap(
-                  spacing: 8.0,
-                  children: _tags.map((tag) {
-                    return Chip(
-                      label: Text(tag),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0)),
-                      onDeleted: () => _removeTag(tag),
-                      deleteIcon: const Icon(
-                        Icons.cancel_outlined,
-                        size: Checkbox.width,
-                        color: Colors.black,
+                  SizedBox(height: 20),
+
+
+                  TextField(
+                    controller: _questionController,
+                    maxLength: null,
+                    maxLines: 3,
+                    enabled: true,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.question_mark_outlined),
+                      hintText: 'Question',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.file_upload_outlined),
-                  onPressed: () {
-                    print(_answerController.text.isNotEmpty);
-                    if (_questionController.text.isNotEmpty &&
-                        _answerController.text.isNotEmpty &&
-                        _tags.isNotEmpty) {
-                      addQA();
-                      Navigator.pop(context);
-                    } else {
-                      Get.showSnackbar(const GetSnackBar(
-                        title: "Error",
-                        message: "Enter Proper Detail please",
-                        icon: Icon(
-                          Icons.error_outlined,
-                          color: Colors.red,
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _answerController,
+                    maxLines: 12,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
+                      hintText: 'Answer',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      prefixIcon: Icon(Icons.question_answer_outlined),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    textCapitalization: TextCapitalization.characters,
+                    controller: _tagController,
+                    maxLines: 12,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add_box_rounded),
+                        onPressed: () {
+                          _addTag();
+                          print(_tags);
+                        },
+                      ),
+                      hintText: 'Tag',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      prefixIcon: Icon(Icons.tag_rounded),
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    children: _tags.map((tag) {
+                      return Chip(
+                        label: Text(tag),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0)),
+                        onDeleted: () => _removeTag(tag),
+                        deleteIcon: const Icon(
+                          Icons.cancel_outlined,
+                          size: Checkbox.width,
+                          color: Colors.black,
                         ),
-                        duration: Duration(seconds: 3),
-                      ));
-                    }
-                  },
-                  label: Text('Upload'),
-                  style: ElevatedButton.styleFrom(elevation: 2.0, // Border color and width
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0), // Border radius
-                    )),
-                ),
-              ],
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 20),
+                  DropdownButtonFormField<String>(
+                    value: selectedSubject,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      prefixIcon: Icon(Icons.subject),
+                    ),
+                    hint: Text('Select Subject'),
+                    items: subjects.map((subject) {
+                      return DropdownMenuItem<String>(
+                        value: subject,
+                        child: Text(subject),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSubject = value;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(30),
+                    dropdownColor: Colors.white,
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    icon: Icon(Icons.arrow_drop_down, color: Colors.black),
+                    isExpanded: true,
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.file_upload_outlined),
+                    onPressed: () {
+                      print(_answerController.text.isNotEmpty);
+                      if (_questionController.text.isNotEmpty &&
+                          _answerController.text.isNotEmpty &&
+                          _tags.isNotEmpty) {
+                        addQA();
+                        Navigator.pop(context);
+                      } else {
+                        Get.showSnackbar(const GetSnackBar(
+                          title: "Error",
+                          message: "Enter Proper Detail please",
+                          icon: Icon(
+                            Icons.error_outlined,
+                            color: Colors.red,
+                          ),
+                          duration: Duration(seconds: 3),
+                        ));
+                      }
+                    },
+                    label: Text('Upload'),
+                    style: ElevatedButton.styleFrom(elevation: 2.0, // Border color and width
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0), // Border radius
+                      )),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ));
+          )),
+      );
   }
 }
