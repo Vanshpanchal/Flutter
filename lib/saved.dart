@@ -12,7 +12,7 @@ class saved extends StatefulWidget {
 class _savedState extends State<saved> {
   final exploreStream = FirebaseFirestore.instance
       .collection('Question-Answer')
-      .orderBy('Timestamp', descending: true)
+      .where('Report', isEqualTo: false)
       .snapshots();
 
   final savedIdsStream = FirebaseFirestore.instance
@@ -30,6 +30,7 @@ class _savedState extends State<saved> {
       'Saved': FieldValue.arrayRemove([itemId])
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,11 +73,12 @@ class _savedState extends State<saved> {
                           ),
                           child: ListTile(
                             splashColor: Colors.transparent,
-                            onTap: () => {_showItemDetails(context, docs[index].id)},
+                            onTap: () =>
+                                {_showItemDetails(context, docs[index].id)},
                             style: ListTileStyle.drawer,
                             trailing: IconButton(
-                              style:
-                              ButtonStyle(splashFactory: NoSplash.splashFactory),
+                              style: ButtonStyle(
+                                  splashFactory: NoSplash.splashFactory),
                               icon: Icon(Icons.bookmark),
                               onPressed: () {
                                 removeSaved(item.id);
@@ -130,10 +132,10 @@ class _savedState extends State<saved> {
               Wrap(
                 spacing: 8.0,
                 children: (itemData?['Tags'] as List<dynamic>?)!.map((tag) {
-                  return Chip(
-                    label: Text(tag),
-                  );
-                }).toList() ??
+                      return Chip(
+                        label: Text(tag),
+                      );
+                    }).toList() ??
                     [],
               )
             ],

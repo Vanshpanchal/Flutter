@@ -23,7 +23,7 @@ class _exploreState extends State<explore> {
 
   var exploreStream = FirebaseFirestore.instance
       .collection('Question-Answer')
-      .orderBy('Timestamp', descending: true)
+      .where('Report', isEqualTo: false)
       .snapshots();
 
   List<dynamic> _saves = [];
@@ -59,7 +59,7 @@ class _exploreState extends State<explore> {
   report(itemId) async {
     await FirebaseFirestore.instance
         .collection("Admin")
-        .doc('EQepsPITGKxb5BcdJCWO')
+        .doc('DlNQAe80WuMvVp9nbRAqfYsF8Ly1')
         .update({
       'Reported': FieldValue.arrayUnion([itemId])
     });
@@ -121,6 +121,7 @@ class _exploreState extends State<explore> {
       setState(() {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
+            .where('Report', isEqualTo: false)
             .orderBy('Timestamp', descending: true)
             .snapshots();
       });
@@ -131,24 +132,24 @@ class _exploreState extends State<explore> {
   onSearch2(String msg) {
     if (msg.isNotEmpty) {
       // if(selectedSubject!.isNotEmpty){
-        setState(() {
-          exploreStream = FirebaseFirestore.instance
-              .collection('Question-Answer')
-              .where("Question", isGreaterThanOrEqualTo: msg.capitalizeFirst)
-              .where("Question", isLessThan: '${msg.capitalizeFirst}z')
-              .snapshots();
-
-        });
+      setState(() {
+        exploreStream = FirebaseFirestore.instance
+            .collection('Question-Answer')
+            .where("Question", isGreaterThanOrEqualTo: msg.capitalizeFirst)
+            .where("Question", isLessThan: '${msg.capitalizeFirst}z')
+            .snapshots();
+      });
     } else {
       setState(() {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
-            .orderBy('Timestamp', descending: true)
+            .where('Report', isEqualTo: false)
             .snapshots();
       });
     }
     // print(exploreStream.toString());
   }
+
   final List<String> subjects = [
     "Algorithms",
     "Data Structures",
@@ -158,18 +159,20 @@ class _exploreState extends State<explore> {
     "Competitive Programming"
   ];
   String? selectedSubject;
+
   onSubjectSelected(String? subject) {
     setState(() {
       selectedSubject = subject;
       if (subject != null) {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
+            .where('Report', isEqualTo: false)
             .where("Subject", isEqualTo: subject)
             .snapshots();
       } else {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
-            .orderBy('Timestamp', descending: true)
+            .where('Report', isEqualTo: false)
             .snapshots();
       }
     });
@@ -178,7 +181,9 @@ class _exploreState extends State<explore> {
   Future<String?> _fetchUserProfileImage(String uid) async {
     try {
       if (uid.isNotEmpty) {
-        return await FirebaseStorage.instance.ref("/Profile/${uid}.png").getDownloadURL();
+        return await FirebaseStorage.instance
+            .ref("/Profile/${uid}.png")
+            .getDownloadURL();
       } else {
         return 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
       }
@@ -187,35 +192,34 @@ class _exploreState extends State<explore> {
       return 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).cardColor;
     return Scaffold(
-
       // appBar: AppBar(
       //   backgroundColor: null,
-        // title:
-        //   CupertinoSearchTextField(
-        //     placeholder: "Tag based search",
-        //     onChanged: (val) => {onSearch2(val), print(val)},
-        //   ),
-        // ),
+      // title:
+      //   CupertinoSearchTextField(
+      //     placeholder: "Tag based search",
+      //     onChanged: (val) => {onSearch2(val), print(val)},
+      //   ),
+      // ),
 
       floatingActionButton: FloatingActionButton(
-          onPressed: (){openbottmsheet();},
+          onPressed: () {
+            openbottmsheet();
+          },
           child: const Icon(Icons.add, color: Colors.black)),
-      body:
-
-      Column(
+      body: Column(
         children: [
-
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: CupertinoSearchTextField(
-            placeholder: "Search",
-            onChanged: (val) => {onSearch2(val), print(val)},
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CupertinoSearchTextField(
+              placeholder: "Search",
+              onChanged: (val) => {onSearch2(val), print(val)},
+            ),
           ),
-      ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -233,93 +237,98 @@ class _exploreState extends State<explore> {
               }).toList(),
             ),
           ),
-          Expanded(child:
-          StreamBuilder(
-            stream: exploreStream,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Text('Error ${snapshot.error}');
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              getsave();
-              var docs = snapshot.data!.docs;
-              if (docs.isEmpty) {
-                return Center(
-                  child: Text('No data found'),
-                );
-              }
+          Expanded(
+            child: StreamBuilder(
+              stream: exploreStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error ${snapshot.error}');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                getsave();
+                var docs = snapshot.data!.docs;
+                if (docs.isEmpty) {
+                  return Center(
+                    child: Text('No data found'),
+                  );
+                }
 
-              return ListView.builder(
-                  itemCount: docs.length,
-                  itemBuilder: (context, index) {
-                    final item = docs[index];
-                    // bool isSaved = ;
-                    // print(isSaved);
-                    return docs.isEmpty
-                        ? const Center(
-                            child: Text("No Data Found"),
-                          )
-                        : Card(
-                      color: Color(colorScheme.value),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            child: ListTile(
-                              splashColor: Colors.transparent,
-                              onTap: () => {_showItemDetails(context, item.id)},
-                              style: ListTileStyle.drawer,
-                              leading: FutureBuilder<String?>(
-                                future: _fetchUserProfileImage(docs[index]['Uid']),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const CircleAvatar(
-                                      backgroundColor: Colors.grey,
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    print(snapshot.error);
-                                    return const CircleAvatar(
-                                      foregroundImage: NetworkImage(
-                                        'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg',
-                                      ),
-                                    );
-                                  } else {
-                                    return CircleAvatar(
-                                      foregroundImage: NetworkImage(snapshot.data!),
-                                    );
-                                  }
-                                },
+                return ListView.builder(
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final item = docs[index];
+                      // bool isSaved = ;
+                      // print(isSaved);
+                      return docs.isEmpty
+                          ? const Center(
+                              child: Text("No Data Found"),
+                            )
+                          : Card(
+                              color: Color(colorScheme.value),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                              title: Text(docs[index]['Question'] + '?'),
-                              subtitle: FutureBuilder<String?>(
-                                future: _fetchUserName(docs[index]['Uid']),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Text('Loading...');
-                                  } else if (snapshot.hasError) {
-                                    return Text('Error fetching user name');
-                                  } else {
-                                    String userName = "~ ${snapshot.data}";
-                                    return Text(userName);
-                                  }
-                                },
-                              ),
-                              // trailing: IconButton(
-                              //   style:
-                              //       ButtonStyle(splashFactory: NoSplash.splashFactory),
-                              //   icon: Icon(Icons.bookmark_border,color: Colors.black,),
-                              //   onPressed: () {
-                              //     save(item.id);
-                              //     // print(getsave());
-                              //   },
-                              // ),
-                            ));
-                  });
-            },
-          ),
-          )],
+                              child: ListTile(
+                                splashColor: Colors.transparent,
+                                onTap: () =>
+                                    {_showItemDetails(context, item.id)},
+                                style: ListTileStyle.drawer,
+                                leading: FutureBuilder<String?>(
+                                  future: _fetchUserProfileImage(
+                                      docs[index]['Uid']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircleAvatar(
+                                        backgroundColor: Colors.grey,
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      print(snapshot.error);
+                                      return const CircleAvatar(
+                                        foregroundImage: NetworkImage(
+                                          'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg',
+                                        ),
+                                      );
+                                    } else {
+                                      return CircleAvatar(
+                                        foregroundImage:
+                                            NetworkImage(snapshot.data!),
+                                      );
+                                    }
+                                  },
+                                ),
+                                title: Text(docs[index]['Question'] + '?'),
+                                subtitle: FutureBuilder<String?>(
+                                  future: _fetchUserName(docs[index]['Uid']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Text('Loading...');
+                                    } else if (snapshot.hasError) {
+                                      return Text('Error fetching user name');
+                                    } else {
+                                      String userName = "~ ${snapshot.data}";
+                                      return Text(userName);
+                                    }
+                                  },
+                                ),
+                                // trailing: IconButton(
+                                //   style:
+                                //       ButtonStyle(splashFactory: NoSplash.splashFactory),
+                                //   icon: Icon(Icons.bookmark_border,color: Colors.black,),
+                                //   onPressed: () {
+                                //     save(item.id);
+                                //     // print(getsave());
+                                //   },
+                                // ),
+                              ));
+                    });
+              },
+            ),
+          )
+        ],
         // ElevatedButton(onPressed: ()}, child: Text("butoon"))],
       ),
     );
@@ -339,8 +348,7 @@ class _exploreState extends State<explore> {
         return Container(
           width: double.infinity,
           padding: EdgeInsets.all(16.0),
-          child:  
-          SingleChildScrollView(
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +362,6 @@ class _exploreState extends State<explore> {
                 ),
                 SizedBox(height: 16.0),
                 Text(
-
                   itemData?['Answer'] ?? 'No description available',
                   style: const TextStyle(
                     fontSize: 16,
@@ -381,13 +388,21 @@ class _exploreState extends State<explore> {
                         onPressed: () => {save(itemId)},
                         icon: Icon(Icons.save_rounded, color: Colors.green)),
                     IconButton.filledTonal(
-                        onPressed: () => { Clipboard.setData(ClipboardData(text:itemData?['Question'] + '? \n' + itemData?['Answer']))},
-                        icon: Icon(Icons.file_copy_rounded, color: Colors.black)),
+                        onPressed: () => {
+                              Clipboard.setData(ClipboardData(
+                                  text: itemData?['Question'] +
+                                      '? \n' +
+                                      itemData?['Answer']))
+                            },
+                        icon:
+                            Icon(Icons.file_copy_rounded, color: Colors.black)),
                     IconButton.filledTonal(
-                        onPressed: ()  async { await Share.share('${'Question:'+itemData?['Question']}? \nAnswer:'+itemData?['Answer']);
-                          },
-                        icon: Icon(CupertinoIcons.share, color: Colors.black )),
-
+                        onPressed: () async {
+                          await Share.share(
+                              '${'Question:' + itemData?['Question']}? \nAnswer:' +
+                                  itemData?['Answer']);
+                        },
+                        icon: Icon(CupertinoIcons.share, color: Colors.black)),
                   ],
                 )
               ],
