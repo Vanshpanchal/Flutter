@@ -1,3 +1,4 @@
+import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:apk/firebase_options.dart';
 import 'package:apk/service/Authservice.dart';
 import 'package:apk/theme_controller.dart';
@@ -36,7 +37,7 @@ class MyApp extends StatelessWidget {
               elevation: 4.0, // AppBar shadow elevation
             ),
           ),
-          home: wrapper());
+          home: Splash());
 
   }
 }
@@ -55,5 +56,19 @@ class Button extends StatelessWidget {
         child: const Text('Show SnackBar'),
       ),
     );
+  }
+}
+
+class Splash extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSplashScreen(
+        duration: 2500,
+        splashIconSize: 250,
+        splash: 'assets/images/QA.png',
+        nextScreen: wrapper(),
+        splashTransition: SplashTransition.fadeTransition,
+        backgroundColor: Colors.lightBlue.shade50);
   }
 }
