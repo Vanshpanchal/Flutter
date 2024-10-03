@@ -135,6 +135,7 @@ class _exploreState extends State<explore> {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
             .where("Question", isGreaterThanOrEqualTo: msg.capitalizeFirst)
+            .where("Question", isLessThan: '${msg.capitalizeFirst}z')
             .snapshots();
       });
     } else {
