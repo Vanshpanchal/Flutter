@@ -117,12 +117,11 @@ class _exploreState extends State<explore> {
             .where("Tags", arrayContains: msg.toUpperCase())
             .snapshots();
       });
-    } else {
+    } else if (msg.isEmpty) {
       setState(() {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
             .where('Report', isEqualTo: false)
-            .orderBy('Timestamp', descending: true)
             .snapshots();
       });
     }
@@ -136,7 +135,6 @@ class _exploreState extends State<explore> {
         exploreStream = FirebaseFirestore.instance
             .collection('Question-Answer')
             .where("Question", isGreaterThanOrEqualTo: msg.capitalizeFirst)
-            .where("Question", isLessThan: '${msg.capitalizeFirst}z')
             .snapshots();
       });
     } else {
@@ -248,7 +246,20 @@ class _exploreState extends State<explore> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 getsave();
-                var docs = snapshot.data!.docs;
+
+                // DEFAULT
+                // var docs = snapshot.data!.docs;
+
+                // Changed
+                var Docs = snapshot.data!.docs;
+
+                List<DocumentSnapshot> docs = Docs.where((doc) {
+                  Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+
+                  // Apply the 'Report' filter: only include documents where 'Report' is false
+                  return data['Report'] == false;
+                }).toList();
+                // Changed
                 if (docs.isEmpty) {
                   return Center(
                     child: Text('No data found'),
