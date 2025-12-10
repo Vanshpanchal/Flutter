@@ -49,6 +49,20 @@ class _homepageState extends State<homepage> {
       appBar: AppBar(
         backgroundColor: colorScheme.primaryFixed,
         title: Obx(() => Text(controller.getAppBarTitle())),
+        actions: [
+          IconButton(
+              tooltip: 'AI Summary',
+              onPressed: () {
+                Get.toNamed('/ai-summary');
+              },
+              icon: const Icon(Icons.summarize_outlined)),
+          IconButton(
+              tooltip: 'AI Code Review',
+              onPressed: () {
+                Get.toNamed('/ai-code-review');
+              },
+              icon: const Icon(Icons.auto_fix_high_outlined)),
+        ],
       ),
       body: Obx(() => controller.screen[controller.selectedindex.value]),
       bottomNavigationBar: Obx(() => NavigationBar(

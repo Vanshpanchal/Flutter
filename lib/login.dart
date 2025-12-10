@@ -2,6 +2,7 @@ import 'package:apk/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class login extends StatefulWidget {
   const login({super.key});
@@ -15,6 +16,7 @@ class _loginState extends State<login> {
   final TextEditingController password_controller = TextEditingController();
   bool _isPasswordVisible = false;
 
+  
   signIn() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(

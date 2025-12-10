@@ -1,3 +1,4 @@
+import 'package:apk/google_login.dart';
 import 'package:apk/homepage.dart';
 import 'package:apk/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,7 +21,7 @@ class _wrapperState extends State<wrapper> {
           if (snapshot.hasData) {
             return const homepage();
           } else {
-            return const login();
+            return const GoogleLoginScreen();
           //   Login
           }
         },

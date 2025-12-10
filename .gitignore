@@ -1,3 +1,89 @@
+# Flutter/Dart/Pub
+.dart_tool/
+.package
+.packages
+.pub/
+.pub-cache/
+pubspec.lock
+/.dart_tool/
+
+# Build outputs
+build/
+/**/build/
+
+# Generated plugin files
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-plugins-dependencies
+.flutter-plugins
+
+# Obsolete or transient
+*.log
+*.tmp
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Android
+/android/.gradle/
+/.gradle/
+**/local.properties
+**/key.properties
+android/**/captures/
+android/app/*.keystore
+android/app/*.jks
+
+# iOS
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/ServiceDefinitions.json
+Pods/
+Podfile.lock
+Runner.xcworkspace/
+ios/Podfile
+ios/Pods/
+DerivedData/
+
+# macOS
+macos/Flutter/ephemeral/
+
+# Windows
+windows/runner/Release/
+
+# Web
+web/manifest.json
+
+# Gradle
+.gradle/
+/.gradle/
+
+# Keystore and credentials
+*.jks
+*.keystore
+key.properties
+secrets.properties
+
+# Firebase / Google config (optional - keep locally, don't commit secrets)
+android/app/google-services.json
+ios/GoogleService-Info.plist
+
+# Flutter tool
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+package_config.json
 # Miscellaneous
 *.class
 *.log

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default web client id from Firebase (used by google_sign_in) -->
+    <string name="default_web_client_id">205276852583-j5vpm5hum53i753g4mdupooi9ir1cahp.apps.googleusercontent.com</string>
+</resources>

@@ -30,12 +30,12 @@ if (flutterVersionName == null) {
 android {
     namespace = "com.example.apk"
 //    compileSdk = flutter.compileSdkVersion
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     defaultConfig {
@@ -61,5 +61,16 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// Ensure Kotlin compilation targets Java 11 when Kotlin plugin is applied
+try {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = '11'
+        }
+    }
+} catch (ignored) {
+    // If Kotlin plugin isn't applied in this module, skip
 }
 

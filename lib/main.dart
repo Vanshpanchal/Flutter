@@ -3,6 +3,8 @@ import 'package:apk/firebase_options.dart';
 import 'package:apk/service/Authservice.dart';
 import 'package:apk/theme_controller.dart';
 import 'package:apk/wrapper.dart';
+import 'package:apk/thread_summary_page.dart';
+import 'package:apk/code_review_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-      return GetMaterialApp(
+  return GetMaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
@@ -37,7 +39,13 @@ class MyApp extends StatelessWidget {
               elevation: 4.0, // AppBar shadow elevation
             ),
           ),
-          home: Splash());
+          getPages: [
+            GetPage(name: '/', page: () => Splash()),
+            GetPage(name: '/ai-summary', page: () => const ThreadSummaryPage()),
+            GetPage(name: '/ai-code-review', page: () => const CodeReviewPage()),
+          ],
+          initialRoute: '/',
+      );
 
   }
 }
